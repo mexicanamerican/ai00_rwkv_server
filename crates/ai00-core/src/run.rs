@@ -714,7 +714,10 @@ impl Runtime {
             if let GenerateKind::Embed { layer } = context.request.kind {
                 let layer = layer.clamp(0, self.info.num_layer - 1);
                 let backed = backed.clone();
-                let embed = self.state.embed(layer, backed)?.to_vec();
+                let embed = match layer {
+                    x if x < self.info.num_layer => self.state.embed(layer, backed)?.to_vec(),
+                    _ => backed.to_vec(),
+                };
                 let _ = context.sender.send(Token::Embed(embed));
             }
 
